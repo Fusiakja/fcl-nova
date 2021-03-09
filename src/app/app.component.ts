@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ApiService } from "./api.service";
 import DataFrame from 'dataframe-js';
+import date from 'date-and-time';
+
 
 @Component({
   selector: 'app-root',
@@ -32,6 +34,7 @@ export class AppComponent {
     this.file = e.target.files[0];
     this.handleFileInput();
     DataFrame.fromJSON(this.file).then(df => {
+    df.map(row => row.set('dateofinfection', row.get('dateofinfection')))
     this.cases = df;
     console.log("cases", this.cases);
     });
@@ -56,6 +59,11 @@ export class AppComponent {
 
   runWasi() {
     console.log("WASI WASI");
+
+    let x = this.products.join(this.helpExipiary, ['productnumber', 'variant','Varenr', "Varenvariant"], 'inner');
+
+    console.log("x", x);
+    
     
   }
   
