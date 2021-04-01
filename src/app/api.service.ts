@@ -24,4 +24,15 @@ export class ApiService {
     }
   }
 
+  getPopulation() {
+
+    console.log("POP");
+
+    try {
+      return this.http.get("./../assets/LAU_Population.json");
+    } catch (error) {
+      
+    }
+    
+  }
 }
