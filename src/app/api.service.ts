@@ -1,5 +1,6 @@
-import { HttpBackend, HttpClient } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import {oboe} from "oboe";
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,12 @@ import { Injectable } from '@angular/core';
 export class ApiService {
 
   constructor(private http: HttpClient) { }
-
+  
+  private httpOptions = {
+    headers: new HttpHeaders({
+      Accept: 'plain/text'
+    })
+  };
 
 
   getLAU()
@@ -34,5 +40,25 @@ export class ApiService {
       
     }
     
+  }
+
+  getCodes() {
+    try {
+      return this.http.get("./../assets/register_norway.json");
+    } catch (error) {
+
+    }
+  }
+
+  getPostal(country:string) {
+    console.log("Postal");
+    
+    try {
+      
+      return this.http.get('./../assets/postalcodes_' + country.toLowerCase() + '.json', this.httpOptions);
+
+    } catch (error) {
+      alert(error)
+    }
   }
 }

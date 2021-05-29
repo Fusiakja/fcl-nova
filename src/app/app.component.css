@@ -1,3 +1,24 @@
+.center1 {
+  display: flex;
+  height: 300px;
+  justify-content: center;
+  align-items: center;
+}
+
+.center2 {
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+
+.message {
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .tp-radio-group {
     display: inline-flex;
     flex-direction: column;
@@ -8,3 +29,55 @@
  .tp-selected-value {
     margin: 15px 0;
  }
+
+ .example-spacer {
+   flex: 1 1 auto;
+ }
+
+ .mat-stepper-vertical {
+   margin-top: 8px;
+ }
+ 
+ .mat-form-field {
+   margin-top: 16px;
+ }
+
+ .mat-table {
+  height: 20px;
+  overflow: auto; 
+  width: 100%;
+}
+.example-container {
+  height: 850px;
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.example-container2 {
+  height: 450px;
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+}
+
+td.mat-column-star {
+  width: 20px;
+  padding-right: 8px;
+}
+
+th.mat-column-position, td.mat-column-position {
+  padding-left: 8px;
+}
+
+.mat-table-sticky-border-elem-right {
+  border-left: 1px solid #e0e0e0;
+}
+
+.mat-table-sticky-border-elem-left {
+  border-right: 1px solid #e0e0e0;
+}

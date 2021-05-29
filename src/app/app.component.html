@@ -1,71 +1,386 @@
-<h2>INPUT</h2>
-<!--<div>{{json}}</div>-->
+<!--Toolbar-->
+<mat-toolbar color="primary">
+  <span>EJP NOVA</span>
+  <span class="example-spacer"></span>
+</mat-toolbar>
+<mat-grid-list cols="2" rowHeight="100%">
+  <mat-grid-tile style="height: fit-content; width: fit-content;">
+    <mat-card style="height: 95%; width: 95%;">
+  <mat-vertical-stepper [linear]="isLinear" #stepper [selectedIndex]="stepIndex" *ngIf="start">
+    <mat-step [stepControl]="firstFormGroup">
+      <form [formGroup]="firstFormGroup">
+        <ng-template matStepLabel>Read Case Files</ng-template>
+          <!--Case File-->
+          <!--File input-->
+          <div class="form-group">
+            <label for="file">Choose Case File:</label>
+            <input type="file"
+                   (change)="handleCaseInput($event)">
+            </div>
+        <div>
+          <button  mat-raised-button (click)="goForward(stepper)" type="button">Next</button>        
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="secondFormGroup">
+      <form [formGroup]="secondFormGroup">
+        <ng-template matStepLabel>Read Product Files</ng-template>
+          <!--Product file-->
+          <div class="form-group">
+            <label for="file">Choose Product Files:</label>
+            <input type="file"
+                    (change)="handleProductInput($event)">
+          </div>
+        <div>
+          <button mat-raised-button (click)="goBack(stepper)" type="button">Back</button>
+          <button mat-raised-button (click)="goForward(stepper);  removeProducts();" type="button">Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="thirdFormGroup">
+      <form [formGroup]="thirdFormGroup">
+        <ng-template matStepLabel>Provide Durability Helper File (optional)</ng-template>
+          <!--Helper file-->
+          <div class="form-group">
+            <label for="file">Choose Durability Help file:</label>
+            <input type="file"
+                    (change)="handleHelpExpiaryInput($event)">
+          </div>
+        <div>
+          <button mat-raised-button (click)="goBack(stepper)" type="button">Back</button>
+          <button mat-raised-button (click)="goForward(stepper);" type="button">Next</button>
+        </div>
+      </form>
+    </mat-step>
 
-<div class="form-group">
-  <label for="file">Choose Case file:</label>
-  <input type="file"
-          id="file"
-          (change)="handleCaseInput($event)">
-</div>
+    <mat-step [stepControl]="forthFromGroup">
+      <form [formGroup]="forthFromGroup">
+        <ng-template matStepLabel>Define Model Parameters</ng-template>
+          <!--Parameters-->
 
-<div class="form-group">
-  <label for="file">Choose Product file:</label>
-  <input type="file"
-          id="file"
-          (change)="handleProductInput($event)">
-</div>
 
-<div class="form-group">
-  <label for="file">Choose Expiary Help file:</label>
-  <input type="file"
-          id="file"
-          (change)="handleHelpExpiaryInput($event)">
-</div>
-
-<section>
+<p>
   <mat-form-field>
-    <mat-label>Default durability for products</mat-label>
-    <input matInput [(ngModel)]="defaultdurability" type="number">
+    <mat-label>Default durability</mat-label>
+    <input matInput type="number" formControlName="defaultdurability" >
   </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Cutoff</mat-label>
+      <input matInput type="number" formControlName="cutoff" >
+  </mat-form-field>
+  </p>
   <p>
     <mat-form-field>
-      <mat-label>Cutoff (Maximal distance consumers take)</mat-label>
-      <input matInput [(ngModel)]="cutoff" type="number">
+      <mat-label>Consume after expiary date</mat-label>
+      <input matInput type="number" formControlName="afterconsume" standalone>
   </mat-form-field>
-  <p>
-    <mat-form-field>
-      <mat-label>durability after durability date things are assumed to be consumed</mat-label>
-      <input matInput [(ngModel)]="afterconsume" type="number">
-  </mat-form-field>
-  <p>
+
     <mat-form-field>
       <mat-label>Longest potential incubation time (days)</mat-label>
-      <input matInput [(ngModel)]="incubationmax" type="number">
+      <input matInput type="number" formControlName="incubationmax" standalone>
   </mat-form-field>
+  </p>
   <p>
     <mat-form-field>
       <mat-label>Shortest potential incubation time (days)</mat-label>
-      <input matInput [(ngModel)]="incubationmin" type="number">
+      <input matInput type="number" formControlName="incubationmin" standalone>
   </mat-form-field>
-  <p>
+
     <mat-form-field>
       <mat-label>Constant for multiplying zeroes in likelihood calkulations </mat-label>
-      <input matInput [(ngModel)]="epsilon" type="number">
+      <input matInput type="number" formControlName="epsilon" standalone>
   </mat-form-field>
+  </p>
   <p>
     Unselect Random Cases?
-    <mat-button-toggle-group [(ngModel)]="unselectrandom" aria-label="Font Style">
+    <mat-button-toggle-group aria-label="Font Style" formControlName="unselectrandom" standalone>
       <mat-button-toggle value=true>true</mat-button-toggle>
       <mat-button-toggle value=false>false</mat-button-toggle>
     </mat-button-toggle-group>
-  <p>
-  <mat-button-toggle-group [(ngModel)]="distancematrixmode" aria-label="Font Style">
+    </p>
+    <p>
+  <mat-button-toggle-group aria-label="Font Style" formControlName="distancematrixmode" standalone>
     <mat-button-toggle value="centroid">Centroid</mat-button-toggle>
     <mat-button-toggle value="centerofmass">Center of Mass</mat-button-toggle>
   </mat-button-toggle-group>
-  <p>
+</p>
+        <div>
+          <button mat-raised-button matStepperPrevious>Back</button>
+          <button mat-raised-button matStepperNext (click)=" toggleLoading()">Run Model</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Result</ng-template>
+      <div *ngIf="calculationResult">
+        <div class="example-container2">
+        <table mat-table [dataSource]="dataSourceResult">
+        
+          <!-- Position Column -->
+          <ng-container matColumnDef="position" sticky>
+            <th mat-header-cell *matHeaderCellDef> Productnumber </th>
+            <td mat-cell *matCellDef="let element"> {{element.productnumber}} </td>
+          </ng-container>
+        
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Variant </th>
+            <td mat-cell *matCellDef="let element"> {{element.variant}} </td>
+          </ng-container>
+        
+          <!-- Weight Column -->
+          <ng-container matColumnDef="weight">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+          </ng-container>
 
-</section>
-<button (click)="runWasi()">Run Wasm</button>
+        
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsResult"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsResult;"></tr>
+        </table>
+        </div>
+      </div>
+      <div>
+        <button mat-raised-button matStepperPrevious>Back</button>
+        <button mat-raised-button (click)="stepper.reset()">Reset Model</button>
+        <button mat-raised-button (click)="saveAsJSON()">Save as JSON</button>
+      </div>
+    </mat-step>
+  </mat-vertical-stepper>
+</mat-card>
+</mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card  style="height: 95%; width: 95%;">
+      <div *ngIf="loading" class="center1">
+      <mat-spinner ></mat-spinner>
+      <div class="message">{{ message }}</div>
+      </div>
 
-<button (click)="calculateDistanceMatrix()">Calc Distancematrix</button>
+      <div *ngIf="!loading">
+      <div *ngIf="!stepIndex && !cases && !afterloading">
+        On this website you can calculate the likelihood for multiple products to be the cause of a foodborne outbreak. To calculate model results we need following data:
+        <ul>
+          <li>Cases data: containing the postal code of each case, the pathogen, the municipality of the case and the date of infection</li>
+          <li>Wholesalers data: containing the name of the product, variant, delivery date, postal code of the desitantion</li>
+          <li>Durability data: containing the days a product is durable. This is not neccessary however highly recomended. If not given a default durability for a product will be assumed</li>
+        </ul>
+
+        Please choose the country you are interested in and follow the steps on the left site of the screen to execute the model.
+
+        <mat-form-field appearance="fill">
+          <mat-label>Select Country</mat-label>
+          <mat-select [(ngModel)]="country">
+            <mat-option *ngFor="let c of countryarray" [value]="c">
+              {{c}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+          <div class="center2">
+            <button center mat-raised-button color="primary"(click)="onStart()">Start</button>
+          </div>
+      </div>
+      <div *ngIf="!cases && afterloading">
+        The case data is the information on the patient of a foodborne disease. The case data consists of:
+        <ul>
+          <li>zip: Postal code of the patient or the LAU identification code from EUROSTAT for the year 2018</li>
+          <li>pathogen: Pathogen of each case</li>
+          <li>municipality: Name of the municipality the outbreak occurred</li>
+          <li>dateofinfection: Date the foodborne disease case was discovered</li>
+        </ul>
+        <div style="height: 450px; width: 500px;" 
+        leaflet
+        [leafletLayers]="layers"
+        [leafletLayersControl]="layersControl"
+        [leafletCenter]="center"
+        [leafletFitBounds]="fitBounds"
+        (leafletMapReady)="onMapReady($event)"
+   ></div>
+      </div>
+    <div *ngIf="stepIndex == 0 && cases">
+
+      <p>Choose the cases you want to include or exclude:</p>
+      <div class="example-container">
+      <table mat-table [dataSource]="dataSource">
+
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? masterToggle() : null"
+                          [checked]="selection.hasValue() && isAllSelected()"
+                          [indeterminate]="selection.hasValue() && !isAllSelected()"
+                          [aria-label]="checkboxLabel()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)"
+                          [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+      
+        <!-- Position Column -->
+        <ng-container matColumnDef="position" sticky>
+          <th mat-header-cell *matHeaderCellDef> Postal Code </th>
+          <td mat-cell *matCellDef="let element"> {{element.zip}} </td>
+        </ng-container>
+      
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Pathogen </th>
+          <td mat-cell *matCellDef="let element"> {{element.pathogen}} </td>
+        </ng-container>
+      
+        <!-- Weight Column -->
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef> Municipality </th>
+          <td mat-cell *matCellDef="let element"> {{element.municipality}} </td>
+        </ng-container>
+      
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="symbol" stickyEnd>
+          <th mat-header-cell *matHeaderCellDef> Date of Infection </th>
+          <td mat-cell *matCellDef="let element"> {{element.dateofinfection}} </td>
+        </ng-container>
+      
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            (click)="selection.toggle(row)">
+        </tr>
+      </table>
+      </div>
+    </div>
+
+    <div *ngIf="stepIndex == 1 && !products">
+      Wholesalers data is needed to execute the model. It can be splited in multiple files. The Wholesalers data consists of the following information:
+      <ul>
+        <li>deliverydate: Date of delivery given as a String</li>
+        <li>deliverypostcode: Postal code or municipality code of the desitantion</li>
+        <li>id: Individual ID for each element</li>
+        <li>name: Name of the product shipped</li>
+        <li>numberofsalesunits: The number of unit that have been saved</li>
+        <li>productnumber: Identifiable number for each product</li>
+        <li>variant: Identifiable variant of each product. Among with the productnumber this defines a product</li>
+        <li>variantname: Name for the variant</li>
+      </ul>
+    </div>
+    <div *ngIf="stepIndex == 1 && products" >
+
+      <p>The Wholesalers data was grouped by the product name. This allows to exclude products from the model calculation by simply disselecting a product:</p>
+      <div class="example-container">
+      <table mat-table [dataSource]="dataSourceProduct" >
+
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? masterToggleProducts() : null"
+                          [checked]="selectionProduct.hasValue() && isAllSelectedProducts()"
+                          [indeterminate]="selectionProduct.hasValue() && !isAllSelectedProducts()"
+                          [aria-label]="checkboxLabelProducts()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? selectionProduct.toggle(row) : null"
+                          [checked]="selectionProduct.isSelected(row)"
+                          [aria-label]="checkboxLabelProducts(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+      
+        <!-- Position Column -->
+        <ng-container matColumnDef="product" stickyEnd>
+          <th mat-header-cell *matHeaderCellDef> Product </th>
+          <td mat-cell *matCellDef="let element"> {{element.product}} </td>
+        </ng-container>
+      
+        <tr mat-header-row *matHeaderRowDef="displayedColumnsProducts"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumnsProducts;"
+            (click)="selectionProduct.toggle(row)">
+        </tr>
+      </table>
+      </div>
+    </div>
+
+
+    <div *ngIf="stepIndex == 2 && !helpExipiary">
+      <p>Durability data is optional for the execution of the model. However, it is highly recomended to provide a durability file for a better estimation. 
+      If for a product no information on the durability can be provided, the model will asume default number of day. This can also be definded in the next step.
+      A durability file consists of: </p>
+      <ul>
+        <li>durability: Number of days a product is consumable</li>
+        <li>name: Name of the product</li>
+        <li>productnumber: Identifiable number for each product</li>
+        <li>variant: Identifiable variant of each product. Among with the productnumber this defines a product</li>
+      </ul>
+    </div>
+    <div *ngIf="stepIndex == 2 && helpExipiary">
+      <div class="example-container">
+      <table mat-table [dataSource]="dataSourceDurability">
+      
+        <!-- Position Column -->
+        <ng-container matColumnDef="position" sticky>
+          <th mat-header-cell *matHeaderCellDef> Productnumber </th>
+          <td mat-cell *matCellDef="let element"> {{element.productnumber}} </td>
+        </ng-container>
+      
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Variant </th>
+          <td mat-cell *matCellDef="let element"> {{element.variant}} </td>
+        </ng-container>
+      
+        <!-- Weight Column -->
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+      
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="symbol" stickyEnd>
+          <th mat-header-cell *matHeaderCellDef> Durability </th>
+          <td mat-cell *matCellDef="let element"> {{element.durability}} </td>
+        </ng-container>
+      
+        <tr mat-header-row *matHeaderRowDef="displayedColumnsDurability"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumnsDurability;"></tr>
+      </table>
+      </div>
+    </div>
+
+    <div *ngIf="stepIndex == 3 && !calculationResult">
+      The model also allow various parameter to improve the model results:
+      <ul>
+        <li>Default durability: If a durability cannot be assigned to a product, the product get a default durability. The default value is 7 days.</li>
+        <li>Cutoff: Assumed maximal km a customer is willing to drive for getting groceries. Default is 500 km.</li>
+        <li>Consume after expiary datee: Assumption that customers will eat products after the durability has expired. Default is 0.1.</li>
+        <li>Shortest incubation interval: Shortest potential incubation time (days) between consumption and being registered as sick. Value depends on the pathogen.</li>
+        <li>Longest incubation interval: Longest potential incubation time (days) between consumption and being registered as sick. Value depends on the pathogen.</li>
+        <li>Epsilon: Constant for multiplying zeroes in likelihood calculations. Default is 100.</li>
+        <li>Unselect Random: Decision if the cases should be selected random from the list, or by the date of infection. Default is false.</li>
+        <li>Centroid vs. Center of Mass: There are two approaches to calculate the ceneter of a municipality. Centroid or Center of Mass. It is currently not clear which method is more relieable.</li>
+      </ul>
+    </div>
+    <!--Map-->
+    <div *ngIf="calculationResult" style="height: 900px; width: 900px;" 
+         leaflet
+         [leafletLayers]="layers"
+         [leafletLayersControl]="layersControl"
+         [leafletCenter]="center"
+         [leafletFitBounds]="fitBounds"
+         (leafletMapReady)="onMapReady($event)"
+    ></div>
+      </div>
+
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+
+
+
+
+
+
+
