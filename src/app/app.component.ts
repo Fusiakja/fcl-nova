@@ -8,12 +8,15 @@ import * as XLSX from 'xlsx';
 import * as Turf from "@turf/turf";
 import date from 'date-and-time';
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
-import { geoJSON, latLng, tileLayer, Map } from 'leaflet';
+import * as L from 'leaflet';
+import { tileLayer } from 'leaflet'; 
 import 'leaflet-providers';
 import { MatStepper } from '@angular/material/stepper';
 import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { saveAs } from 'file-saver';
+
+
 
 
 export interface CaseElement {
@@ -53,6 +56,7 @@ export class AppComponent {
   cases: any;
   products: any;
   geojson:any;
+  countryGeoJson: any;
   helpExipiary: any;
   population: any;
   distancematrixmode: string = "centroid";
@@ -74,13 +78,13 @@ export class AppComponent {
   //options for leaflet
   options = {
     layers: [
-      tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 18,
         attribution: "..."
       })
     ],
     zoom: 4,
-    center: latLng(0, 0),
+    center: L.latLng(0, 0),
   };
   layers = [];
   layersControl: any;
@@ -88,6 +92,10 @@ export class AppComponent {
   regions = [];
   center = [0, 0];
   clicked = '';
+  jsonMap;
+
+  private map;
+
   //Stepper
   isLinear = false;
   firstFormGroup: FormGroup;
@@ -130,7 +138,6 @@ export class AppComponent {
   //Calculation Result
   calculationResult;
   
-
 
 
 
@@ -182,18 +189,22 @@ export class AppComponent {
           }
 
           console.log("pope", popDE);
-
+          
 
           for (let index = 0; index < x["features"].length; index++) {
             if (x["features"][index]["properties"]["CNTR_CODE"].includes(this.country)) {
               y.push(x["features"][index]);
             }
           }
-          console.log("fff", y, popDE);
+
           for (let index = 0; index < y.length; index++) {
             for (let i = 0; i < popDE.length; i++) {
-              if (popDE[i]["giscoid"].includes(y[index]["properties"]["giscoid"])) {
-                y[index]["properties"]["density"] = popDE[i]["POPULATION"] / Turf.area(y[index]["geometry"]) * 1000000;
+              if (popDE[i]["giscoid"].includes(y[index]["properties"]["GISCO_ID"])) {
+                y[index]["properties"]["density"] = popDE[i]["population"] / Turf.area(y[index]["geometry"]) * 10000000;
+                delete y[index]["properties"]["POP_2019"];
+                delete y[index]["properties"]["POP_DENS_2019"];
+                delete y[index]["properties"]["AREA_KM2"];
+                delete y[index]["properties"]["YEAR"];
               }
             }
           }
@@ -202,9 +213,27 @@ export class AppComponent {
           console.log("Y", y);
 
           laus["features"] = y;
-          let defaultBaseLayer = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '...' });
-          let defaultOverlay = geoJSON(y as any);
+          console.log("LA0", laus);
 
+          this.countryGeoJson = laus;
+          const defaultBaseLayer= L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            attribution: "..."
+          });
+          let defaultOverlay = L.geoJSON(laus as any, {
+            onEachFeature: this.onPopUp.bind(this),
+            style: function (feature) { // Style option
+              return {
+                fillColor: getColor(feature.properties.density),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+              }
+            }
+          }
+          );
 
           this.layers = [
             defaultBaseLayer,
@@ -216,9 +245,10 @@ export class AppComponent {
               'OpenStreetMap Mapnik': defaultBaseLayer,
             },
             overlays: {
-              [this.country]: defaultOverlay
+              'Norway': defaultOverlay
             }
           };
+
         }
         )
       }
@@ -248,12 +278,14 @@ export class AppComponent {
         nrplots: [5, Validators.required],	//#Number of plots to make from mincases to all cases}
         distancematrixmode: ["centroid", Validators.required]
   });
+
   }
 
 
-  onMapReady(map: Map): void {
+  onMapReady(map: L.Map): void {
     setTimeout(() => {
-      map.invalidateSize();
+        map.invalidateSize();
+        this.map = map;
     });
   }
 
@@ -280,20 +312,6 @@ export class AppComponent {
   handleFileInput() {
     console.log("GO");
     
-    /*this.api.getLAU().subscribe(x => {
-      this.geojson = dataForge.fromObject(x["features"]);
-      this.geojson = this.geojson.toArray();
-
-      console.log("GeoJSON", this.geojson);
-    })
-
-    this.api.getPopulation().subscribe(
-      x => {
-        console.log("Population", x);
-        this.population = dataForge.fromJSON(JSON.stringify(x));
-
-      }
-    )*/
 
     this.message = "Processing data. Please wait."
     this.api.getCodes().subscribe(x => {
@@ -302,11 +320,7 @@ export class AppComponent {
 
     this.api.getPostal(this.country).subscribe(x => {
       let country = [];
-      /*this.postalcodes = dataForge.fromJSON(JSON.stringify(x));
-      this.postalcodes = new dataForge.DataFrame(this.postalcodes)
-      .where(row => (row["CNTR_ID"] == this.country))        // Filter out rows that you don't want.
-      .toArray()                           // Back to normal JavaScript data!.
-      console.log("Postal", this.postalcodes);*/
+
       JSON.parse(JSON.stringify(x)).forEach(element => {
         if (element["CNTR_ID"] == this.country) {
           country.push(element);
@@ -374,6 +388,60 @@ export class AppComponent {
       console.log(this.cases);
       
       this.dataSource = new MatTableDataSource<CaseElement>(this.cases);
+      let casesGEO = [];
+      this.cases.forEach(element => {
+        this.countryGeoJson["features"].forEach(element2 => {
+
+          if (element2["properties"]["LAU_ID"] == element.zip.toLowerCase()) {
+            casesGEO.push(element2);
+          }
+          
+        });
+      });
+
+      casesGEO.forEach(element => {
+        let count = 0;
+        casesGEO.forEach(element2 => {
+          if (element["properties"]["LAU_ID"] == element2["properties"]["LAU_ID"]) {
+            count++;
+          }
+        });
+        element["properties"]["casenumbers"] = count;
+      });
+
+      console.log(casesGEO);
+
+      function getColor(d) {
+        return d > 8 ? '#081c15' :
+            d > 7 ? '#1b4332' :
+              d > 6 ? '#2d6a4f' :
+                d > 5 ? '#40916c' :
+                  d > 4 ? '#52b788' :
+                    d > 3 ? '#74c69d' :
+                      d > 2 ? '#95d5b2' :
+                        d > 1 ? '#b7e4c7' :
+                          d > 0 ? '#d8f3dc' :
+                      '#FFEDA0';
+      }
+
+      let casesMap = this.countryGeoJson;
+      casesMap["features"] = casesGEO;
+      let defaultOverlay = L.geoJSON(casesMap as any, {
+        onEachFeature: this.onPopUp.bind(this),
+        style: function (feature) { // Style option
+          return {
+            fillColor: getColor(feature.properties.casenumbers),
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.7
+          }
+        }
+      });
+
+      this.layers.push(defaultOverlay);
+      this.layersControl.overlays["cases"] = defaultOverlay;
       this.masterToggle();
       this.loading = false;
     });
@@ -392,15 +460,17 @@ export class AppComponent {
         product: group.first().variantname}));
       this.productsGrouped = this.productsGrouped.toArray();
       this.dataSourceProduct = new MatTableDataSource<ProductElement>(this.productsGrouped);
+      /*this.productsGroupedMuni = this.products.groupBy(row => row.deliverypostcode);
+        this.productsGroupedMuni = this.productsGroupedMuni.toArray();
+        console.log("products", this.productsGroupedMuni);*/
       this.masterToggleProducts();
       this.loading = false;
-      console.log("products", this.productsGrouped);
-      
     });
     reader.readAsText(this.file);
 
   }
 
+  productsGroupedMuni;
   //Remove Products from list
   removeProducts(){    
     /*this.selectionProduct.selected.forEach(element => {
@@ -412,6 +482,8 @@ export class AppComponent {
 
   //Read file containing the days until a product expiers
   handleHelpExpiaryInput(e:any) {
+    console.log("products", this.productsGroupedMuni);
+
     this.file = e.target.files[0];
     this.loading = true;
     const reader = new FileReader();
@@ -648,8 +720,14 @@ for (let i = 0; i < this.products.length; i++) {
               })
           
               this.startWasiTask(this.wasmFilePath).then(x => {
-                console.log("X", x);
-              });
+                this.calculationResult = JSON.parse(JSON.parse(x));
+                /*let resParsed = [];
+                res.forEach(element => {
+                  resParsed.push({productnumber:element["productnumber"], variant: element["variant"], name: element["name"]});
+                });*/
+                this.dataSourceResult = new MatTableDataSource<ResultElement>(this.calculationResult);
+                this.loading = false;
+                });
               
 }
 

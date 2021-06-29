@@ -23,7 +23,7 @@ export class ApiService {
     
     try {
 
-      return this.http.get('https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_3857.geojson');
+      return this.http.get('https://gisco-services.ec.europa.eu/distribution/v2/lau/geojson/LAU_RG_01M_2019_4326.geojson');
       
     } catch (error) {
       alert(error)
