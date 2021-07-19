@@ -577,7 +577,7 @@ goForward(stepper: MatStepper){
     this.message = "Calculating model. Please wait."
     this.loading = true;
       setTimeout(() => {
-        this.runWasi();
+        this.runWasi2();
       });
   }
 
@@ -599,6 +599,22 @@ goForward(stepper: MatStepper){
   echoStr:any;
   wasmFs:any;
   wasi: any;
+
+  runWasi2() {
+    if (typeof Worker !== 'undefined') {
+      // Create a new
+      const worker = new Worker(new URL('./app.worker'), { type: 'module' });
+      worker.onmessage = ({ data }) => {
+        console.log(`page got message: ${data}`);
+      };
+      worker.postMessage('hello');
+    } else {
+      // Web workers are not supported in this environment.
+      // You should add a fallback so that your program still executes correctly
+      console.log("NO worker");
+      
+    }
+  }
   runWasi() {
     //this.toggleLoading();
     //console.log("WASI WASI");
@@ -690,7 +706,6 @@ for (let i = 0; i < this.products.length; i++) {
     });
     
     //console.log("Density", populationdensity);
-
     console.log("Arguments", casesaggregated, this.products, this.helpExipiary, populationdensity, this.incubationmax, this.incubationmin)
     let x = { casesaggregated: casesaggregated, 
               products: this.products,
@@ -699,7 +714,7 @@ for (let i = 0; i < this.products.length; i++) {
               incubationmax: this.incubationmax,
               incubationmin: this.incubationmin};
 
-              this.wasmFilePath = '../assets/rustynova2.wasm'  // Path to our WASI module
+              this.wasmFilePath = './worker.wasm'  // Path to our WASI module
               this.echoStr      = 'This assembly'    // Text string to echo
               this.wasmFs = new WasmFs()
               
@@ -707,25 +722,28 @@ for (let i = 0; i < this.products.length; i++) {
                 // Arguments passed to the Wasm Module
                 // The first argument is usually the filepath to the executable WASI module
                 // we want to run.
-                args: [this.wasmFilePath, JSON.stringify(casesaggregated), JSON.stringify(this.products), JSON.stringify(this.helpExipiary), JSON.stringify(populationdensity), this.incubationmax, this.incubationmin],
-              
+                //args: [this.wasmFilePath, JSON.stringify(casesaggregated), JSON.stringify(this.products), JSON.stringify(this.helpExipiary), JSON.stringify(populationdensity), this.incubationmax, this.incubationmin],
+                args: [this.wasmFilePath, this.echoStr],
+
                 // Environment variables that are accesible to the WASI module
                 env: {},
               
                 // Bindings that are used by the WASI Instance (fs, path, etc...)
                 bindings: {
-                  ...browserBindings,
+                  ...WASI.defaultBindings,
                   fs: this.wasmFs.fs
                 }
               })
           
               this.startWasiTask(this.wasmFilePath).then(x => {
-                this.calculationResult = JSON.parse(JSON.parse(x));
+                console.log("Result", x);
+                
+                //this.calculationResult = JSON.parse(JSON.parse(x));
                 /*let resParsed = [];
                 res.forEach(element => {
                   resParsed.push({productnumber:element["productnumber"], variant: element["variant"], name: element["name"]});
                 });*/
-                this.dataSourceResult = new MatTableDataSource<ResultElement>(this.calculationResult);
+                //this.dataSourceResult = new MatTableDataSource<ResultElement>(this.calculationResult);
                 this.loading = false;
                 });
               
