@@ -603,7 +603,7 @@ goForward(stepper: MatStepper){
   runWasi2() {
     if (typeof Worker !== 'undefined') {
       // Create a new
-      const worker = new Worker(new URL('./app.worker'), { type: 'module' });
+      const worker = new Worker(new URL('./app.worker'));
       worker.onmessage = ({ data }) => {
         console.log(`page got message: ${data}`);
       };

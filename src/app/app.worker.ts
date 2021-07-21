@@ -12,5 +12,4 @@ import { lowerI64Imports } from "@wasmer/wasm-transformer";
 addEventListener('message', ({ data }) => {
   console.log("Path Ok");
 
-
 })
