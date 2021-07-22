@@ -1,2 +1,0 @@
-src/assets/*.csv filter=lfs diff=lfs merge=lfs -text
-src/assets/*.json filter=lfs diff=lfs merge=lfs -text
