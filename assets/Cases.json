@@ -1,330 +1,330 @@
 [
     {
-      "ZIP": 10203,
+      "zip": "2012",
       "pathogen": "Salmonella",
       "municipality": "Alta",
       "dateofinfection": "05.02.2019"
     },
     {
-      "ZIP": 10204,
+      "zip": "0928",
       "pathogen": "Salmonella",
       "municipality": "Birkenes",
       "dateofinfection": "20.02.2019"
     },
     {
-      "ZIP": 10205,
+      "zip": "0219",
       "pathogen": "Salmonella",
       "municipality": "Bærum",
       "dateofinfection": "07.03.2019"
     },
     {
-      "ZIP": 10206,
+      "zip": "0237",
       "pathogen": "Salmonella",
       "municipality": "Eidsvoll",
       "dateofinfection": "20.02.2019"
     },
     {
-      "ZIP": 10207,
+      "zip": "0237",
       "pathogen": "Salmonella",
       "municipality": "Eidsvoll",
       "dateofinfection": "25.02.2019"
     },
     {
-      "ZIP": 10208,
+      "zip": "0237",
       "pathogen": "Salmonella",
       "municipality": "Eidsvoll",
       "dateofinfection": "20.03.2019"
     },
     {
-      "ZIP": 10209,
+      "zip": "0106",
       "pathogen": "Salmonella",
       "municipality": "Fredrikstad",
       "dateofinfection": "20.03.2019"
     },
     {
-      "ZIP": 10210,
+      "zip": "0215",
       "pathogen": "Salmonella",
       "municipality": "Frogn",
       "dateofinfection": "14.03.2019"
     },
     {
-      "ZIP": 10211,
+      "zip": "1106",
       "pathogen": "Salmonella",
       "municipality": "Haugesund",
       "dateofinfection": "16.03.2019"
     },
     {
-      "ZIP": 10212,
+      "zip": "0612",
       "pathogen": "Salmonella",
       "municipality": "Hole",
       "dateofinfection": "13.03.2019"
     },
     {
-      "ZIP": 10213,
+      "zip": "0612",
       "pathogen": "Salmonella",
       "municipality": "Hole",
       "dateofinfection": "01.03.2019"
     },
     {
-      "ZIP": 10214,
+      "zip": "1149",
       "pathogen": "Salmonella",
       "municipality": "Karmøy",
       "dateofinfection": "06.03.2019"
     },
     {
-      "ZIP": 10215,
+      "zip": "1149",
       "pathogen": "Salmonella",
       "municipality": "Karmøy",
       "dateofinfection": "17.02.2019"
     },
     {
-      "ZIP": 10216,
+      "zip": "1120",
       "pathogen": "Salmonella",
       "municipality": "Klepp",
       "dateofinfection": "12.03.2019"
     },
     {
-      "ZIP": 10217,
+      "zip": "1001",
       "pathogen": "Salmonella",
       "municipality": "Kristiansand",
       "dateofinfection": "18.02.2019"
     },
     {
-      "ZIP": 10218,
+      "zip": "1001",
       "pathogen": "Salmonella",
       "municipality": "Kristiansand",
       "dateofinfection": "22.02.2019"
     },
     {
-      "ZIP": 10219,
+      "zip": "5037",
       "pathogen": "Salmonella",
       "municipality": "Levanger",
       "dateofinfection": "04.03.2019"
     },
     {
-      "ZIP": 10220,
+      "zip": "1032",
       "pathogen": "Salmonella",
       "municipality": "Lyngdal",
       "dateofinfection": "23.02.2019"
     },
     {
-      "ZIP": 10221,
+      "zip": "1851",
       "pathogen": "Salmonella",
       "municipality": "Lødingen",
       "dateofinfection": "08.03.2019"
     },
     {
-      "ZIP": 10222,
+      "zip": "1502",
       "pathogen": "Salmonella",
       "municipality": "Molde",
       "dateofinfection": "26.02.2019"
     },
     {
-      "ZIP": 10223,
+      "zip": "1502",
       "pathogen": "Salmonella",
       "municipality": "Molde",
       "dateofinfection": "03.03.2019"
     },
     {
-      "ZIP": 10224,
+      "zip": "1502",
       "pathogen": "Salmonella",
       "municipality": "Molde",
       "dateofinfection": "23.02.2019"
     },
     {
-      "ZIP": 10225,
+      "zip": "0238",
       "pathogen": "Salmonella",
       "municipality": "Nannestad",
       "dateofinfection": "18.02.2019"
     },
     {
-      "ZIP": 10226,
+      "zip": "0625",
       "pathogen": "Salmonella",
       "municipality": "Nedre Eiker",
       "dateofinfection": "19.02.2019"
     },
     {
-      "ZIP": 10227,
+      "zip": "0625",
       "pathogen": "Salmonella",
       "municipality": "Nedre Eiker",
       "dateofinfection": "15.02.2019"
     },
     {
-      "ZIP": 10228,
+      "zip": "0301",
       "pathogen": "Salmonella",
       "municipality": "Oslo ",
       "dateofinfection": "24.02.2019"
     },
     {
-      "ZIP": 10229,
+      "zip": "0301",
       "pathogen": "Salmonella",
       "municipality": "Oslo ",
       "dateofinfection": "24.02.2019"
     },
     {
-      "ZIP": 10230,
+      "zip": "0301",
       "pathogen": "Salmonella",
       "municipality": "Oslo ",
       "dateofinfection": "23.02.2019"
     },
     {
-      "ZIP": 10231,
+      "zip": "0301",
       "pathogen": "Salmonella",
       "municipality": "Oslo ",
       "dateofinfection": "20.02.2019"
     },
     {
-      "ZIP": 10232,
+      "zip": "0301",
       "pathogen": "Salmonella",
       "municipality": "Oslo ",
       "dateofinfection": "10.02.2019"
     },
     {
-      "ZIP": 10233,
+      "zip": "0805",
       "pathogen": "Salmonella",
       "municipality": "Porsgrunn",
       "dateofinfection": "22.02.2019"
     },
     {
-      "ZIP": 10234,
+      "zip": "0228",
       "pathogen": "Salmonella",
       "municipality": "Rælingen",
       "dateofinfection": "01.02.2019"
     },
     {
-      "ZIP": 10235,
+      "zip": "0710",
       "pathogen": "Salmonella",
       "municipality": "Sandefjord",
       "dateofinfection": "17.02.2019"
     },
     {
-      "ZIP": 10236,
+      "zip": "0710",
       "pathogen": "Salmonella",
       "municipality": "Sandefjord",
       "dateofinfection": "19.02.2019"
     },
     {
-      "ZIP": 10237,
+      "zip": "1102",
       "pathogen": "Salmonella",
       "municipality": "Sandnes",
       "dateofinfection": "18.02.2019"
     },
     {
-      "ZIP": 10238,
+      "zip": "0231",
       "pathogen": "Salmonella",
       "municipality": "Skedsmo",
       "dateofinfection": "16.02.2019"
     },
     {
-      "ZIP": 10239,
+      "zip": "0231",
       "pathogen": "Salmonella",
       "municipality": "Skedsmo",
       "dateofinfection": "13.02.2019"
     },
     {
-      "ZIP": 10240,
+      "zip": "0231",
       "pathogen": "Salmonella",
       "municipality": "Skedsmo",
       "dateofinfection": "12.02.2019"
     },
     {
-      "ZIP": 10241,
+      "zip": "0806",
       "pathogen": "Salmonella",
       "municipality": "Skien",
       "dateofinfection": "14.02.2019"
     },
     {
-      "ZIP": 10242,
+      "zip": "1870",
       "pathogen": "Salmonella",
       "municipality": "Sortland",
       "dateofinfection": "17.02.2019"
     },
     {
-      "ZIP": 10243,
+      "zip": "1103",
       "pathogen": "Salmonella",
       "municipality": "Stavanger",
       "dateofinfection": "15.02.2019"
     },
     {
-      "ZIP": 10244,
+      "zip": "5004",
       "pathogen": "Salmonella",
       "municipality": "Steinkjer",
       "dateofinfection": "13.02.2019"
     },
     {
-      "ZIP": 10245,
+      "zip": "5035",
       "pathogen": "Salmonella",
       "municipality": "Stjørdal",
       "dateofinfection": "05.02.2019"
     },
     {
-      "ZIP": 10246,
+      "zip": "1130",
       "pathogen": "Salmonella",
       "municipality": "Strand",
       "dateofinfection": "02.02.2019"
     },
     {
-      "ZIP": 10247,
+      "zip": "1902",
       "pathogen": "Salmonella",
       "municipality": "Tromsø",
       "dateofinfection": "01.02.2019"
     },
     {
-      "ZIP": 10248,
+      "zip": "5001",
       "pathogen": "Salmonella",
       "municipality": "Trondheim",
       "dateofinfection": "05.02.2019"
     },
     {
-      "ZIP": 10249,
+      "zip": "5001",
       "pathogen": "Salmonella",
       "municipality": "Trondheim",
       "dateofinfection": "01.02.2019"
     },
     {
-      "ZIP": 10250,
+      "zip": "1850",
       "pathogen": "Salmonella",
       "municipality": "Tysfjord",
       "dateofinfection": "30.01.2019"
     },
     {
-      "ZIP": 10251,
+      "zip": "1850",
       "pathogen": "Salmonella",
       "municipality": "Tysfjord",
       "dateofinfection": "28.01.2019"
     },
     {
-      "ZIP": 10252,
+      "zip": "0704",
       "pathogen": "Salmonella",
       "municipality": "Tønsberg",
       "dateofinfection": "20.01.2019"
     },
     {
-      "ZIP": 10253,
+      "zip": "0704",
       "pathogen": "Salmonella",
       "municipality": "Tønsberg",
       "dateofinfection": "07.01.2019"
     },
     {
-      "ZIP": 10254,
+      "zip": "0704",
       "pathogen": "Salmonella",
       "municipality": "Tønsberg",
       "dateofinfection": "26.01.2019"
     },
     {
-      "ZIP": 10255,
+      "zip": "0704",
       "pathogen": "Salmonella",
       "municipality": "Tønsberg",
       "dateofinfection": "12.01.2019"
     },
     {
-      "ZIP": 10256,
+      "zip": "0704",
       "pathogen": "Salmonella",
       "municipality": "Tønsberg",
       "dateofinfection": "11.01.2019"
     },
     {
-      "ZIP": 10257,
+      "zip": "0624",
       "pathogen": "Salmonella",
       "municipality": "Øvre Eiker",
       "dateofinfection": "31.12.2018"
