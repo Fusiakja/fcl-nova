@@ -155,8 +155,8 @@ export class AppComponent {
       this.geojson = dataForge.fromObject(x["features"]);
       this.geojson = this.geojson.toArray();
 
-        this.api.getPopulation().subscribe(pop => {
-
+        //this.api.getPopulation().subscribe(pop => {
+          let pop = this.api.getPopulation();
           this.population = pop;
           let laus = x;
           let y = [];
@@ -248,8 +248,8 @@ export class AppComponent {
 
         }
         )
-      }
-    )
+      //}
+    //)
   }
 
   ngOnInit() {
@@ -311,18 +311,20 @@ export class AppComponent {
     
 
     this.message = "Processing data. Please wait."
-    this.api.getCodes().subscribe(x => {
+    /*this.api.getCodes().subscribe(x => {
       this.post = x;
-    })
+    })*/
 
-    this.api.getPostal(this.country).subscribe(x => {
+    this.post = this.api.getCodes();
+
+    //this.api.getPostal(this.country).subscribe(x => {
       let country = [];
-
+      let x = this.api.getPostal(this.country);
       JSON.parse(JSON.stringify(x)).forEach(element => {
         if (element["CNTR_ID"] == this.country) {
           country.push(element);
         }
-      });
+      //});
       this.postalcodes = country;
       this.start = true;
       this.loading = false;

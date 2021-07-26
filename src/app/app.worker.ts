@@ -1,7 +1,5 @@
 /// <reference lib="webworker" />
 
-
-
 import { WASI } from '@wasmer/wasi';
 import { WasmFs } from '@wasmer/wasmfs';
 import { lowerI64Imports } from "@wasmer/wasm-transformer";
@@ -16,7 +14,7 @@ let echoStr;
 let wasmFs;
 let wasi;
 
-wasmFilePath = '../assets/rustynova2.wasm'  // Path to our WASI module
+wasmFilePath = './../assets/rustynova2.wasm'  // Path to our WASI module
 echoStr      = 'data assembly'    // Text string to echo
 wasmFs = new WasmFs()
               
