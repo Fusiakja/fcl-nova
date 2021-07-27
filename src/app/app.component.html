@@ -1,12 +1,20 @@
 <!--Toolbar-->
-<mat-toolbar color="primary">
-  <span>EJP NOVA</span>
-  <span class="example-spacer"></span>
-</mat-toolbar>
+<app-header></app-header>
 <mat-grid-list cols="2" rowHeight="100%">
   <mat-grid-tile style="height: fit-content; width: fit-content;">
     <mat-card style="height: 95%; width: 95%;">
-  <mat-vertical-stepper [linear]="isLinear" #stepper [selectedIndex]="stepIndex" *ngIf="start">
+  <div *ngIf="!start" fxLayout="column" fxLayoutAlign="start center">
+    <span fxFlex></span>
+    On this website you can calculate the likelihood for multiple products to be the cause of a foodborne outbreak. To calculate model results we need following data:
+    <ul>
+      <li>Cases data: containing the postal code of each case, the pathogen, the municipality of the case and the date of infection</li>
+      <li>Wholesalers data: containing the name of the product, variant, delivery date, postal code of the desitantion</li>
+      <li>Durability data: containing the days a product is durable. This is not neccessary however highly recomended. If not given a default durability for a product will be assumed</li>
+    </ul>
+    <span fxFlex></span>
+  </div>
+  <span fxFlex></span>
+  <mat-vertical-stepper [linear]="isLinear" #stepper [selectedIndex]="stepIndex" *ngIf="start" >
     <mat-step [stepControl]="firstFormGroup">
       <form [formGroup]="firstFormGroup">
         <ng-template matStepLabel>Read Case Files</ng-template>
@@ -151,7 +159,7 @@
 </mat-card>
 </mat-grid-tile>
   <mat-grid-tile>
-    <mat-card  style="height: 95%; width: 95%;">
+    <mat-card  style="height: 95%; width: 95%;" fxLayout="row" fxLayoutAlign="start center">
       <div *ngIf="loading" class="center1">
       <mat-spinner ></mat-spinner>
       <div class="message">{{ message }}</div>
@@ -159,16 +167,12 @@
 
       <div *ngIf="!loading">
       <div *ngIf="!stepIndex && !cases && !afterloading">
-        On this website you can calculate the likelihood for multiple products to be the cause of a foodborne outbreak. To calculate model results we need following data:
-        <ul>
-          <li>Cases data: containing the postal code of each case, the pathogen, the municipality of the case and the date of infection</li>
-          <li>Wholesalers data: containing the name of the product, variant, delivery date, postal code of the desitantion</li>
-          <li>Durability data: containing the days a product is durable. This is not neccessary however highly recomended. If not given a default durability for a product will be assumed</li>
-        </ul>
-
+        <div style="display: flex; align-items: center; justify-content: center">
         Please choose the country you are interested in and follow the steps on the left site of the screen to execute the model.
-
-        <mat-form-field appearance="fill">
+        </div>
+        <br>
+        <div>
+        <mat-form-field appearance="fill" style="display: flex; align-items: center; justify-content: center">
           <mat-label>Select Country</mat-label>
           <mat-select [(ngModel)]="country">
             <mat-option *ngFor="let c of countryarray" [value]="c">
@@ -176,6 +180,8 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
+        </div>
+        <br>
           <div class="center2">
             <button center mat-raised-button color="primary"(click)="onStart()">Start</button>
           </div>
@@ -391,9 +397,4 @@
   </mat-grid-tile>
 </mat-grid-list>
 
-
-
-
-
-
-
+<app-footer></app-footer>
