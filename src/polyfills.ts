@@ -65,7 +65,7 @@ import * as Buffer from '../node_modules/buffer/index';
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js/dist/zone';  // Included with Angular CLI.
+import 'zone.js';  // Included with Angular CLI.
 
 
 /***************************************************************************************************

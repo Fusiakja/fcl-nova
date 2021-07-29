@@ -1,10 +1,11 @@
 import { Component, NgZone } from '@angular/core';
 import { ApiService } from "./api.service";
 import * as dataForge from 'data-forge';
+import {DomSanitizer} from '@angular/platform-browser';
+import {MatIconRegistry} from '@angular/material/icon';
 import { WASI } from '@wasmer/wasi';
 import { WasmFs } from '@wasmer/wasmfs';
 import * as Turf from "@turf/turf";
-import date from 'date-and-time';
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import * as L from 'leaflet';
 import 'leaflet-providers';
@@ -13,6 +14,19 @@ import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { saveAs } from 'file-saver';
 
+
+//ICONS///
+
+const THUMBUP_ICON = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px">
+    <path d="M0 0h24v24H0z" fill="none"/>
+    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.` +
+      `44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5` +
+      `1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/>
+  </svg>
+`;
+
+const error_outline = '<svg xmlns="http://www.w3.org/2000/svg" height="200px" viewBox="0 0 24 24" width="200px" fill="#000000"><path d="M11 15h2v2h-2v-2zm0-8h2v6h-2V7zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>';
 
 
 
@@ -90,6 +104,7 @@ export class AppComponent {
   center = [0, 0];
   clicked = '';
   jsonMap;
+  fileLoaded = false;
 
   private map;
 
@@ -138,8 +153,8 @@ export class AppComponent {
 
 
 
-  constructor(private api: ApiService, private zone: NgZone, private _formBuilder: FormBuilder){   
-
+  constructor(private api: ApiService, private zone: NgZone, private _formBuilder: FormBuilder, iconRegistry: MatIconRegistry, sanitizer: DomSanitizer){   
+    iconRegistry.addSvgIconLiteral('error_outline', sanitizer.bypassSecurityTrustHtml(error_outline));  
   }
 
 
@@ -332,55 +347,14 @@ export class AppComponent {
     })
   }
 
-
-  calculateDistanceMatrix(){
-
-    let centers = [];
-
-    if (this.distancematrixmode == "centerofmass") {
-
-      console.log("Mass");
-      this.geojson.forEach(element => {
-        if (element["Value"]["properties"]["GISCO_ID"].includes(this.country)) {
-        let ob = {LAU: element["Value"]["properties"]["GISCO_ID"], center: Turf.centerOfMass(element["Value"]["geometry"]), area: Turf.area(element["Value"]["geometry"]) };
-        centers.push(ob);
-        }
-      });
-      
-    } else {
-      
-      console.log("centrod");
-      this.geojson.forEach(element => {
-        if (element["Value"]["properties"]["GISCO_ID"].includes(this.country)) {
-        let ob = {LAU: element["Value"]["properties"]["GISCO_ID"], center: Turf.centroid(element["Value"]["geometry"]), area: Turf.area(element["Value"]["geometry"]) };
-        centers.push(ob);
-        }
-      });
-      
-    }
-
-    console.log("Centers", centers);
-
-    let distancematrix = [];
-    centers.forEach(e1 => {
-      let distancematrixrow = [];
-      centers.forEach(e2 => {
-        let x = Turf.distance(e1["center"], e2["center"])
-        distancematrixrow.push({lau: e2["LAU"], distance: x});
-      });
-      distancematrix.push({lau: e1["LAU"], area: e1["area"], distances: distancematrixrow});
-    });
-    
-    console.log("Matrix", distancematrix);
-    this.distancematrix = distancematrix;
-  }
-
   //Read Case file
   handleCaseInput(e:any) {
     this.loading = true;
     this.file = e.target.files[0];
     const reader = new FileReader();
     reader.addEventListener('load', (event) => {
+      try {
+        
       this.cases = event.target.result;
       this.cases = dataForge.fromJSON(this.cases);
       this.cases = this.cases.toArray();
@@ -443,6 +417,13 @@ export class AppComponent {
       this.layersControl.overlays["cases"] = defaultOverlay;
       this.masterToggle();
       this.loading = false;
+      this.fileLoaded = false;
+
+
+    } catch (error) {
+      this.message = "File cannot be read. Please valitade file or file format."
+      this.fileLoaded = true;
+    }
     });
     reader.readAsText(this.file);
   }
@@ -453,6 +434,8 @@ export class AppComponent {
     this.file = e.target.files[0];
     const reader = new FileReader();
     reader.addEventListener('load', (event) => {
+
+      try {
       this.products = event.target.result;
       this.products = dataForge.fromCSV(this.products);
       this.productsGrouped = this.products.groupBy(row => row.variantname).select(group => ({ 
@@ -464,6 +447,10 @@ export class AppComponent {
         console.log("products", this.productsGroupedMuni);*/
       this.masterToggleProducts();
       this.loading = false;
+
+    } catch (error) {
+      this.message = "File cannot be read. Please valitade file or file format."
+    }
     });
     reader.readAsText(this.file);
 
@@ -625,164 +612,47 @@ goForward(stepper: MatStepper){
       
     }
   }
-  runWasi() {
-    //this.toggleLoading();
-    //console.log("WASI WASI");
 
-    //console.log("Dura", this.dataSourceDurability.filteredData);
-    
+  preprocessRes;
+  runWasi() {
     // Parse files to Array
     console.log("cases", this.cases);
     
     this.helpExipiary = this.dataSourceDurability.filteredData;
     this.cases = this.dataSource.data;
     this.products = this.products.toArray();
-    let casesaggregated = [];
-    let alreadyremoved = [];
-    this.cases.forEach((element, index) => {
-      let count = 1;
-      this.cases.forEach((element2, index2) => {
-        if (element["dateofinfection"] == element2["dateofinfection"] && element["municipality"] == element2["municipality"] && index != index2 && !alreadyremoved.includes(index) && !alreadyremoved.includes(index2)) {
-          count++;
-          alreadyremoved.push(index2);
-        }
-      });
-      casesaggregated.push({"zip": element["zip"], "pathogen": element["pathogen"], "municipality": element["municipality"], "dateofinfection": element["dateofinfection"], "count": count});
-    });
-    
 
-    /*casesaggregated.forEach(element => {
-      this.post.forEach(element2 => {
-        if (element2["Kommunenavn"].toLowerCase().includes(element["municipality"].toLowerCase())) {
-          element["zip"] = element2["Kommunenummer"];
-        }
-      });
-    });*/
-    console.log("Help", casesaggregated);
-
-    casesaggregated.forEach(element => {
-      this.postalcodes.forEach(element2 => {
-        if (element2["GISCO_ID"].includes("NO_"+element["zip"])) {
-          element["zip"] = element2["GISCO_ID"];
-        }
-      });
-    });
-    console.log("Help", casesaggregated);
-    //this.products = this.dataSourceProduct.data;
-    this.products.forEach(element => {
-      element["deliverydate"] = date.transform(element["deliverydate"], "YYYYMMDD", 'YYYY-MM-DD');
-    });
-    console.log("Prod", this.products);
-
-    casesaggregated.forEach(element => {
-      element["dateofinfection"] = date.transform(element["dateofinfection"], "DD.MM.YYYY", 'YYYY-MM-DD');
-    });
-    //console.log("Cases", this.cases);
-
-    this.calculateDistanceMatrix();
-
-    let newpop = [];
-    //console.log("pop", this.population);
-    
-    this.population.forEach(element => {
-      if (element["country"] === this.country) {
-        newpop.push(element);
-      }
-    });
+    const worker = new Worker(new URL('./preprocess.worker', import.meta.url));
+    worker.onmessage = ({ data }) => {
+      this.preprocessRes = data;
+      console.log("Preprocessing Worker output", this.preprocessRes);
+      let wasiInput = {casesaggregated: this.preprocessRes["casesaggregated"], 
+                       products: this.preprocessRes["products"],
+                       helpExipiary: this.helpExipiary,
+                       populationdensity: this.preprocessRes["populationdensity"],
+                       incubationmax: this.incubationmax,
+                       incubationmin: this.incubationmin
+                      }
 
 
-    console.log(this.postalcodes, "Codes");
+      this.runWasi2(wasiInput);
+      
+    }
+    let preprocess = {cases: this.cases, products: this.products, postalcodes: this.postalcodes, population: this.population, country: this.country, distancematrixmode: this.distancematrixmode, geojson: this.geojson};
+    worker.postMessage(preprocess);
 
-for (let i = 0; i < this.products.length; i++) {
-  for (let j = 0; j < this.postalcodes.length; j++) {
-    if (this.postalcodes[j]["PC_CNTR"].includes(this.products[i]["deliverypostcode"])) {
-      this.products[i]["deliverypostcode"] = this.postalcodes[j]["GISCO_ID"];
-      //this.products[i]["deliverypostcode"] = 1;
-  }
-  }
-
-}
- 
-    console.log("product with lau", this.products);
-    
-    let populationdensity = [];
-    newpop.forEach(e1 => {      
-      this.distancematrix.forEach(e2 => {        
-        if (e1["giscoid"].includes(e2["lau"])) {
-          e2["populationdensity"] = Number.parseFloat(e1["population"])/(Number.parseInt(e2["area"])/1000000);
-          populationdensity.push(e2);          
-        }
-      });
-    });
-    
-    //console.log("Density", populationdensity);
-    console.log("Arguments", casesaggregated, this.products, this.helpExipiary, populationdensity, this.incubationmax, this.incubationmin)
+    /*console.log("Arguments", casesaggregated, this.products, this.helpExipiary, populationdensity, this.incubationmax, this.incubationmin)
     let x = { casesaggregated: casesaggregated, 
               products: this.products,
               helpExipiary: this.helpExipiary,
               populationdensity: populationdensity,
               incubationmax: this.incubationmax,
-              incubationmin: this.incubationmin};
-              this.runWasi2(x);
-              this.wasmFilePath = './worker.wasm'  // Path to our WASI module
-              this.echoStr      = 'This assembly'    // Text string to echo
-              this.wasmFs = new WasmFs()
-              
-              this.wasi = new WASI({
-                // Arguments passed to the Wasm Module
-                // The first argument is usually the filepath to the executable WASI module
-                // we want to run.
-                args: [this.wasmFilePath, JSON.stringify(casesaggregated), JSON.stringify(this.products), JSON.stringify(this.helpExipiary), JSON.stringify(populationdensity), this.incubationmax, this.incubationmin],
-                //args: [this.wasmFilePath, this.echoStr],
-
-                // Environment variables that are accesible to the WASI module
-                env: {},
-              
-                // Bindings that are used by the WASI Instance (fs, path, etc...)
-                bindings: {
-                  ...WASI.defaultBindings,
-                  fs: this.wasmFs.fs
-                }
-              })
-
-              //////////////////// START WASI //////////////////////////////7
-          
-              /*this.startWasiTask(this.wasmFilePath).then(x => {
-                console.log("Result", x);
-                
-                //this.calculationResult = JSON.parse(JSON.parse(x));
-                /*let resParsed = [];
-                res.forEach(element => {
-                  resParsed.push({productnumber:element["productnumber"], variant: element["variant"], name: element["name"]});
-                });*/
-                //this.dataSourceResult = new MatTableDataSource<ResultElement>(this.calculationResult);
-                /*this.loading = false;
-                });*/
+              incubationmin: this.incubationmin};*/
+              //this.runWasi2(x);
               
 }
 
 
-async startWasiTask(pathToWasmFile: string) {
-  // Fetch our Wasm File
-  let response  = await fetch(pathToWasmFile)
-  let wasmBytes = new Uint8Array(await response.arrayBuffer())
 
-  // IMPORTANT:
-  // Some WASI module interfaces use datatypes that cannot yet be transferred
-  // between environments (for example, you can't yet send a JavaScript BigInt
-  // to a WebAssembly i64).  Therefore, the interface to such modules has to
-  // be transformed using `@wasmer/wasm-transformer`, which we will cover in
-  // a later example
-
-  // Instantiate the WebAssembly file
-  let wasmModule = await WebAssembly.compile(wasmBytes);
-  let instance = await WebAssembly.instantiate(wasmModule, {
-     ...this.wasi.getImports(wasmModule)
-  });
-
-  this.wasi.start(instance)                      // Start the WASI instance
-  let stdout = await this.wasmFs.getStdOut()     // Get the contents of stdout
-  return String(stdout);// Write stdout data to the DOM
-}
   
 }

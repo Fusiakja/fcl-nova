@@ -159,9 +159,14 @@
 </mat-card>
 </mat-grid-tile>
   <mat-grid-tile>
-    <mat-card  style="height: 95%; width: 95%;" fxLayout="row" fxLayoutAlign="start center">
+    <mat-card  style="height: 95%; width: 95%;" fxLayout="column" fxLayoutAlign="start center">
       <div *ngIf="loading" class="center1">
-      <mat-spinner ></mat-spinner>
+        <div *ngIf="!fileLoaded">
+           <mat-spinner ></mat-spinner>
+        </div>
+        <div *ngIf="fileLoaded">
+          <mat-icon svgIcon="error_outline" aria-hidden="false" aria-label="error_outline"></mat-icon>
+        </div>
       <div class="message">{{ message }}</div>
       </div>
 
@@ -207,6 +212,7 @@
 
       <p>Choose the cases you want to include or exclude:</p>
       <div class="example-container">
+        
       <table mat-table [dataSource]="dataSource">
 
         <ng-container matColumnDef="select">

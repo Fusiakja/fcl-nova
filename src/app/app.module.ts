@@ -18,7 +18,6 @@ import {MatCardModule} from '@angular/material/card';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatButtonModule} from '@angular/material/button';
 import {MatSelectModule} from '@angular/material/select';
-
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
