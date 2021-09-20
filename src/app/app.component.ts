@@ -3,9 +3,8 @@ import { ApiService } from "./api.service";
 import * as dataForge from 'data-forge';
 import {DomSanitizer} from '@angular/platform-browser';
 import {MatIconRegistry} from '@angular/material/icon';
-import { WASI } from '@wasmer/wasi';
-import { WasmFs } from '@wasmer/wasmfs';
 import * as Turf from "@turf/turf";
+import date from 'date-and-time';
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import * as L from 'leaflet';
 import 'leaflet-providers';
@@ -13,6 +12,8 @@ import { MatStepper } from '@angular/material/stepper';
 import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { saveAs } from 'file-saver';
+import { json2csv } from 'json-2-csv';
+
 
 
 //ICONS///
@@ -263,8 +264,7 @@ export class AppComponent {
 
         }
         )
-      //}
-    //)
+
   }
 
   ngOnInit() {
@@ -294,12 +294,78 @@ export class AppComponent {
   }
 
 
+  legendAdded: boolean = false;
   onMapReady(map: L.Map): void {
     setTimeout(() => {
         map.invalidateSize();
         this.map = map;
+        /*function getColorPopulation(d) {
+          return d > 1000 ? '#800026' :
+            d > 500 ? '#BD0026' :
+              d > 200 ? '#E31A1C' :
+                d > 100 ? '#FC4E2A' :
+                  d > 50 ? '#FD8D3C' :
+                    d > 20 ? '#FEB24C' :
+                      d > 10 ? '#FED976' :
+                        '#FFEDA0';
+        }
+
+      function getColorCases(d) {
+        return d > 8 ? '#081c15' :
+            d > 7 ? '#1b4332' :
+              d > 6 ? '#2d6a4f' :
+                d > 5 ? '#40916c' :
+                  d > 4 ? '#52b788' :
+                    d > 3 ? '#74c69d' :
+                      d > 2 ? '#95d5b2' :
+                        d > 1 ? '#b7e4c7' :
+                          d > 0 ? '#d8f3dc' :
+                      '#FFEDA0';
+        }
+
+          const v1 = 0;
+          const v2 = 1;
+          const v3 = 2;
+          const v4 = 3;
+          const v5 = 4;
+          const v6 = 5;
+          const v7 = 6;
+          const v8 = 7;
+          const v9 = 8;
+          const legend = new (L.Control.extend({
+            options: { position: 'bottomright' }
+          }));
+
+          if (this.legendAdded == false) {
+          legend.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'info legend');
+            const labels = [
+              v1 + " cases",
+              v2 + " cases",
+              v3 + " cases",
+              v4 + " cases",
+              v5 + " cases",
+              v6 + " cases",
+              v7 + " cases",
+              v8 + " cases",
+              'More than ' + v9 + " cases",
+            ];
+            const grades = [v1, v2, v3, v4, v5, v6 ,v7, v8 ,v9 ];
+            div.innerHTML = '';
+            div.innerHTML = '<div><b>Legend</b></div>';
+            for (let i = 0; i < grades.length; i++) {
+              div.innerHTML += '<i style="background:' + getColorCases(grades[ i ]) + '"> &nbsp; &nbsp;</i> &nbsp; &nbsp;'
+            + labels[i] + '<br/>';
+            }
+            div.innerHTML += '<button mat-raised-button color="primary">Primary</button>';
+            return div;
+          };
+          legend.addTo(map);
+        }*/
+        
+
     });
-  }
+}
 
 
   onPopUp(feature, layer) {
@@ -354,12 +420,33 @@ export class AppComponent {
     const reader = new FileReader();
     reader.addEventListener('load', (event) => {
       try {
-        
       this.cases = event.target.result;
-      this.cases = dataForge.fromJSON(this.cases);
+      if (this.file.type.includes("json")) {
+        this.cases = dataForge.fromJSON(this.cases);
+
+      } else
+      if (this.file.type.includes("csv")) {
+        this.cases = dataForge.fromCSV(this.cases);
+      }
+      else{
+        throw new Error("File type is not supported.");
+      }
       this.cases = this.cases.toArray();
       console.log(this.cases);
-      
+      console.log("typeof", typeof this.cases[0].zip);
+      if ( typeof this.cases[0].zip != "undefined" && typeof this.cases[0].pathogen != "undefined" && typeof this.cases[0].municipality != "undefined" && typeof this.cases[0].dateofinfection != "undefined") {
+
+        if ( isNaN(this.cases[0].zip)) {
+          throw new Error("Check Input for postal codes.");
+        }
+        if (!date.isValid(this.cases[0].dateofinfection, "DD.MM.YYYY", 'YYYY-MM-DD')) {
+          throw new Error("Date can not be parsed. Please check the right format.");
+        }
+
+      }
+      else {
+        throw new Error("File format does not match.");
+      }
       this.dataSource = new MatTableDataSource<CaseElement>(this.cases);
       let casesGEO = [];
       this.cases.forEach(element => {
@@ -414,14 +501,15 @@ export class AppComponent {
       });
 
       this.layers.push(defaultOverlay);
-      this.layersControl.overlays["cases"] = defaultOverlay;
+      this.layersControl.overlays["Cases of "+ this.cases[0].pathogen] = defaultOverlay;
       this.masterToggle();
+      this.legendAdded = true;
+      this.onMapReady(this.map);
       this.loading = false;
       this.fileLoaded = false;
 
-
     } catch (error) {
-      this.message = "File cannot be read. Please valitade file or file format."
+      this.message = "File cannot be read. \n" + error;
       this.fileLoaded = true;
     }
     });
@@ -437,7 +525,30 @@ export class AppComponent {
 
       try {
       this.products = event.target.result;
-      this.products = dataForge.fromCSV(this.products);
+
+      if (this.file.type.includes("json")) {
+        this.products = dataForge.fromJSON(this.products);
+      } else
+      if (this.file.type.includes("csv")) {
+        this.products = dataForge.fromCSV(this.products);      
+      }
+      else{
+        throw new Error("File type is not supported."); 
+      }
+      let productsFirstElement = this.products.toArray()[0];
+      
+      if (typeof productsFirstElement.productnumber != 'undefined' && typeof productsFirstElement.variant != 'undefined' && typeof productsFirstElement.deliverydate != 'undefined' && typeof productsFirstElement.numberofsalesunits != 'undefined' && typeof productsFirstElement.deliverypostcode != 'undefined' && typeof productsFirstElement.variantname != 'undefined' && typeof productsFirstElement.name != 'undefined') {
+        if ( isNaN(productsFirstElement.productnumber || isNaN(productsFirstElement.variant) || isNaN(productsFirstElement.numberofsalesunits) || isNaN(productsFirstElement.deliverypostcode))) {
+          throw new Error("Check Input for postal codes.");
+        }
+        if (!date.isValid(productsFirstElement.deliverydate, "YYYYMMDD", 'YYYY-MM-DD')) {
+          throw new Error("Date can not be parsed. Please check the right format.");
+        }
+
+      }
+      else {
+        throw new Error("File format does not match.");
+      }
       this.productsGrouped = this.products.groupBy(row => row.variantname).select(group => ({ 
         product: group.first().variantname}));
       this.productsGrouped = this.productsGrouped.toArray();
@@ -447,9 +558,11 @@ export class AppComponent {
         console.log("products", this.productsGroupedMuni);*/
       this.masterToggleProducts();
       this.loading = false;
+      this.fileLoaded = false;
 
     } catch (error) {
-      this.message = "File cannot be read. Please valitade file or file format."
+      this.message = "File cannot be read. \n" + error;
+      this.fileLoaded = true;
     }
     });
     reader.readAsText(this.file);
@@ -469,17 +582,46 @@ export class AppComponent {
   //Read file containing the days until a product expiers
   handleHelpExpiaryInput(e:any) {
     console.log("products", this.productsGroupedMuni);
-
-    this.file = e.target.files[0];
     this.loading = true;
+    this.file = e.target.files[0];
     const reader = new FileReader();
     reader.addEventListener('load', (event) => {
+
+      try {
+
       this.helpExipiary = event.target.result;
-      this.helpExipiary = dataForge.fromCSV(this.helpExipiary);
+      console.log(this.file.type);
+      
+      if (this.file.type.includes("json")) {
+        this.helpExipiary = dataForge.fromJSON(this.helpExipiary);
+      } else
+      if (this.file.type.includes("csv")) {
+        this.helpExipiary = dataForge.fromCSV(this.helpExipiary);
+      }
+      else{
+        throw new Error("File type is not supported."); 
+      }
       this.helpExipiary = this.helpExipiary.toArray();
+
+      console.log(this.helpExipiary);
+      
+      if (typeof this.helpExipiary[0].productnumber != 'undefined' && typeof this.helpExipiary[0].variant != 'undefined' && typeof this.helpExipiary[0].name != 'undefined' && typeof this.helpExipiary[0].durability != 'undefined' ) {
+        if ( isNaN(this.helpExipiary[0].productnumber || isNaN(this.helpExipiary[0].variant) || isNaN(this.helpExipiary[0].durability) )) {
+          throw new Error("Check Input for postal codes.");
+        }
+      }
+      else {
+        throw new Error("File format does not match.");
+      }
       this.dataSourceDurability = new MatTableDataSource<DurabilityElement>(this.helpExipiary);
       console.log("help", this.helpExipiary);
       this.loading = false;
+      this.fileLoaded = false;
+
+    } catch (error) {
+      this.message = "File cannot be read. Please valitade file or file format."
+      this.fileLoaded = true;
+    }
     });
     reader.readAsText(this.file);
   }
@@ -576,7 +718,23 @@ goForward(stepper: MatStepper){
              {type: "text/plain;charset=utf-8"});
              console.log("file", jsonfile);
              
-      saveAs(jsonfile, "result.json");
+      saveAs(jsonfile, "NOVA_result.json");
+  }
+
+  saveAsCSV() {
+    console.log(this.calculationResult);
+    let json2csvCallback = function (err, csv) {
+      if (err) throw err;
+      const csvfile = 
+      new Blob([
+               csv], 
+               {type: "text/plain;charset=utf-8"});
+               console.log("file", csvfile);
+               
+        saveAs(csvfile, "NOVA_result.csv");
+  };
+  json2csv(this.calculationResult, json2csvCallback);
+
   }
 
   //Preprocessing data

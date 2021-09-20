@@ -1,8 +1,8 @@
 <!--Toolbar-->
 <app-header></app-header>
-<mat-grid-list cols="2" rowHeight="100%">
+<mat-grid-list cols="2" class="gridList" rowHeight="fit">
   <mat-grid-tile style="height: fit-content; width: fit-content;">
-    <mat-card style="height: 95%; width: 95%;">
+    <mat-card class="mat-card-scrollable-content" fxLayout="column" fxLayoutAlign="start center">
   <div *ngIf="!start" fxLayout="column" fxLayoutAlign="start center">
     <span fxFlex></span>
     On this website you can calculate the likelihood for multiple products to be the cause of a foodborne outbreak. To calculate model results we need following data:
@@ -14,8 +14,9 @@
     <span fxFlex></span>
   </div>
   <span fxFlex></span>
-  <mat-vertical-stepper [linear]="isLinear" #stepper [selectedIndex]="stepIndex" *ngIf="start" >
-    <mat-step [stepControl]="firstFormGroup">
+  <div fxLayout style="height: 95%">
+  <mat-vertical-stepper [linear]="isLinear" [selectedIndex]="stepIndex" *ngIf="start"  fxLayout="column" fxFlex="100"  #stepper >
+    <mat-step [stepControl]="firstFormGroup" fxFlex="100"  fxLayout="column">
       <form [formGroup]="firstFormGroup">
         <ng-template matStepLabel>Read Case Files</ng-template>
           <!--Case File-->
@@ -149,17 +150,19 @@
         </table>
         </div>
       </div>
-      <div>
+      <div *ngIf="calculationResult">
         <button mat-raised-button matStepperPrevious>Back</button>
-        <button mat-raised-button (click)="stepper.reset()">Reset Model</button>
+        <button mat-raised-button (click)="window.location.reload()">Reset Model</button>
         <button mat-raised-button (click)="saveAsJSON()">Save as JSON</button>
+        <button mat-raised-button (click)="saveAsCSV()">Save as CSV</button>
       </div>
     </mat-step>
   </mat-vertical-stepper>
+  </div>
 </mat-card>
 </mat-grid-tile>
   <mat-grid-tile>
-    <mat-card  style="height: 95%; width: 95%;" fxLayout="column" fxLayoutAlign="start center">
+    <mat-card  class="mat-card-scrollable-content" fxLayout="column" fxLayoutAlign="start center">
       <div *ngIf="loading" class="center1">
         <div *ngIf="!fileLoaded">
            <mat-spinner ></mat-spinner>
@@ -172,7 +175,7 @@
 
       <div *ngIf="!loading">
       <div *ngIf="!stepIndex && !cases && !afterloading">
-        <div style="display: flex; align-items: center; justify-content: center">
+        <div style="height: fit-content; width: fit-content;">
         Please choose the country you are interested in and follow the steps on the left site of the screen to execute the model.
         </div>
         <br>
@@ -199,7 +202,7 @@
           <li>municipality: Name of the municipality the outbreak occurred</li>
           <li>dateofinfection: Date the foodborne disease case was discovered</li>
         </ul>
-        <div style="height: 450px; width: 725px;" 
+        <div style="height: 450px; width: 900px;" 
         leaflet
         [leafletLayers]="layers"
         [leafletLayersControl]="layersControl"
@@ -259,7 +262,7 @@
       </table>
       </div>
 
-      <div style="height: 450px; width: 725px;" 
+      <div style="height: 450px; width: 900px;" 
       leaflet
       [leafletLayers]="layers"
       [leafletLayersControl]="layersControl"
@@ -319,7 +322,7 @@
       </table>
       </div>
 
-      <div style="height: 450px; width: 725px;" 
+      <div style="height: 450px; width: 900px;" 
       leaflet
       [leafletLayers]="layers"
       [leafletLayersControl]="layersControl"
@@ -342,7 +345,6 @@
       </ul>
     </div>
     <div *ngIf="stepIndex == 2 && helpExipiary">
-      <div class="example-container">
       <table mat-table [dataSource]="dataSourceDurability">
       
         <!-- Position Column -->
@@ -372,7 +374,6 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumnsDurability"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumnsDurability;"></tr>
       </table>
-      </div>
     </div>
 
     <div *ngIf="stepIndex == 3 && !calculationResult">
