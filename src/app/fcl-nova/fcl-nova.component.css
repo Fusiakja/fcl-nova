@@ -1,0 +1,141 @@
+@import "https://fonts.googleapis.com/icon?family=Material+Icons+Round";
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "~leaflet/dist/leaflet.css";
+
+.center1 {
+    display: flex;
+    height: 300px;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .center2 {
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+  }
+  
+  .message {
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .tp-radio-group {
+      display: inline-flex;
+      flex-direction: column;
+   }
+   .tp-radio-button {
+      margin: 5px;
+   }
+   .tp-selected-value {
+      margin: 15px 0;
+   }
+  
+   .example-spacer {
+     flex: 1 1 auto;
+   }
+  
+   .mat-stepper-vertical {
+     margin-top: 8px;
+   }
+   
+   .mat-form-field {
+     margin-top: 16px;
+   }
+  
+   .mat-table {
+    height: 20px;
+    overflow: auto; 
+    width: 100%;
+  }
+  .example-container {
+    height: 400px;
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+  }
+  
+  .example-container2 {
+    height: 450px;
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+  }
+  
+  table {
+    width: 100%;
+  }
+  
+  td.mat-column-star {
+    width: 20px;
+    padding-right: 8px;
+  }
+  
+  th.mat-column-position, td.mat-column-position {
+    padding-left: 8px;
+  }
+  
+  .mat-table-sticky-border-elem-right {
+    border-left: 1px solid #e0e0e0;
+  }
+  
+  .mat-table-sticky-border-elem-left {
+    border-right: 1px solid #e0e0e0;
+  }
+  
+  .main-div{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .gridList {
+    height: 100%;
+    width: 1920px;
+  }
+  
+  .mat-stepper-vertical {
+    margin-top: 8px;
+  }
+  
+  .mat-form-field {
+    margin-top: 16px;
+  }
+  
+  .mat-card-scrollable-content {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 95%;
+    width: 95%;
+  }
+  
+  .legend { 
+    border: 5px solid black;
+    font-weight: bold;
+    color: blue;
+    text-align: left;
+    width: 250px;
+    height: 240px;
+    line-height: 18px;
+    background: white;
+    opacity: 1;
+  }
+  .legend i {
+        width: 50px;
+        height: 50px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.7;
+  }
+  .legend square {
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        margin-top: 8px;
+  }

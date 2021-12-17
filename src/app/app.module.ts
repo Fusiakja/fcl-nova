@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { ApplicationRef, CUSTOM_ELEMENTS_SCHEMA, DoBootstrap, Injector, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -19,10 +19,11 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatButtonModule} from '@angular/material/button';
 import {MatSelectModule} from '@angular/material/select';
 import { FlexLayoutModule } from '@angular/flex-layout';
-
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { FooterComponent } from './layout/footer/footer.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { createCustomElement } from '@angular/elements';
+import { FclNovaComponent } from './fcl-nova/fcl-nova.component';
 
 
 
@@ -30,7 +31,8 @@ import { HeaderComponent } from './layout/header/header.component';
   declarations: [
     AppComponent,
     FooterComponent,
-    HeaderComponent
+    HeaderComponent,
+    FclNovaComponent
   ],
   imports: [
     BrowserModule,
@@ -56,6 +58,13 @@ import { HeaderComponent } from './layout/header/header.component';
     MatSelectModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class AppModule { }
+export class AppModule implements DoBootstrap { 
+
+  constructor(private injector: Injector) {}
+  ngDoBootstrap() {
+    const customElement = createCustomElement(FclNovaComponent, {injector: this.injector})
+    customElements.define('app-fcl-nova', customElement);
+  }
+}
